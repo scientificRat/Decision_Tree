@@ -1,6 +1,8 @@
 from DecisionTree import *
 import random
 import sys
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 def print_attributes_dict_info(attr_dict):
@@ -62,6 +64,28 @@ def k_fold_cross_validation(k, data_set, attributes_value_dict):
     return error_ratio_set_gini, error_ratio_set_grain, error_ratio_set_grain_ratio
 
 
+def plot_data(data):
+    n_groups = len(data[0])
+
+    fig, ax = plt.subplots()
+    index = np.arange(n_groups)
+    bar_width = 0.22
+
+    opacity = 0.4
+    plt.bar(index, data[0], bar_width, alpha=opacity, color='b', label='Gini')
+    plt.bar(index + bar_width, data[1], bar_width, alpha=opacity, color='r', label='Grain')
+    plt.bar(index + 2*bar_width, data[2], bar_width, alpha=opacity, color='lightskyblue',
+            label='Grain ratio')
+
+    plt.xlabel('Group')
+    plt.ylabel('ratio')
+    plt.title('k-折下测试集错误率')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+
 def start():
     print("决策树生成器 v1.0")
     while True:
@@ -71,15 +95,15 @@ def start():
             filename = "data/tic-tac-toe-endgame"
         elif filename == '0':
             filename = "data/CarEvaluation/car"
-        elif filename =='q':
+        elif filename == 'q':
             break
         attributes_value_dict, data_set = load_data(filename)
         print("所有属性及其取值范围：")
         print_attributes_dict_info(attributes_value_dict)
         print("数据集大小：" + str(len(data_set)))
         print("开始20-折交叉检验...")
-        error_ratio_set_gini, error_ratio_set_grain, error_ratio_set_grain_ratio \
-            = k_fold_cross_validation(20, data_set, attributes_value_dict)
+        rst = k_fold_cross_validation(20, data_set, attributes_value_dict)
+        error_ratio_set_gini, error_ratio_set_grain, error_ratio_set_grain_ratio = rst
 
         def avg(lst):
             return sum(lst) / len(lst)
@@ -96,6 +120,7 @@ def start():
         print("Grain Ratio")
         print("平均错误率\t" + str(av_grain_ratio))
         print("平均精度\t" + str(1 - av_grain_ratio))
+        plot_data(rst)
 
 
 start()
